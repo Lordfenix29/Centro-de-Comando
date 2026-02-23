@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Centro de Comando - Proyectos</title>
+    <title>Centro de Comando</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -18,8 +18,6 @@
             background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%);
             min-height: 100vh;
         }
-        .loading { animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
     </style>
 </head>
 <body class="text-white p-6">
@@ -30,126 +28,89 @@
                 <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
                     <i class="fas fa-rocket mr-3"></i>Centro de Comando
                 </h1>
-                <p class="text-gray-400 mt-1">Conectado a Notion • Datos en tiempo real</p>
+                <p class="text-gray-400 mt-1">Conectado vía Make.com</p>
             </div>
-            <div class="flex gap-3">
-                <button onclick="cargarDatos()" class="px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700 transition">
-                    <i class="fas fa-sync-alt mr-2"></i>Actualizar
-                </button>
-            </div>
+            <button onclick="cargarDatos()" class="px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700 transition">
+                <i class="fas fa-sync-alt mr-2"></i>Actualizar
+            </button>
         </div>
 
-        <!-- Loading State -->
-        <div id="loading" class="text-center py-12 loading">
+        <!-- Loading -->
+        <div id="loading" class="hidden text-center py-12">
             <i class="fas fa-circle-notch fa-spin text-4xl mb-4"></i>
-            <p>Cargando datos desde Notion...</p>
+            <p>Cargando desde Make.com...</p>
         </div>
 
-        <!-- Error State -->
+        <!-- Error -->
         <div id="error" class="hidden bg-red-500/20 border border-red-500 rounded-xl p-6 mb-6">
-            <h3 class="font-bold text-red-400 mb-2"><i class="fas fa-exclamation-triangle mr-2"></i>Error de conexión</h3>
+            <h3 class="font-bold text-red-400 mb-2">Error de conexión</h3>
             <p id="errorText" class="text-sm"></p>
+            <p class="text-xs text-gray-400 mt-2">Intenta con el método alternativo abajo</p>
         </div>
 
-        <!-- Stats Cards -->
+        <!-- Stats -->
         <div id="stats" class="hidden grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <div class="glass rounded-2xl p-6">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-gray-400 text-sm">Proyectos Activos</p>
-                        <h3 id="totalProyectos" class="text-3xl font-bold mt-2">-</h3>
-                    </div>
-                    <i class="fas fa-folder-open text-2xl text-blue-400"></i>
-                </div>
-            </div>
-
-            <div class="glass rounded-2xl p-6">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-gray-400 text-sm">Tareas Pendientes</p>
-                        <h3 id="totalTareas" class="text-3xl font-bold mt-2">-</h3>
-                    </div>
-                    <i class="fas fa-tasks text-2xl text-purple-400"></i>
-                </div>
-            </div>
-
-            <div class="glass rounded-2xl p-6">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-gray-400 text-sm">Tasa de Éxito</p>
-                        <h3 id="tasaExito" class="text-3xl font-bold mt-2 text-green-400">-%</h3>
-                    </div>
-                    <i class="fas fa-chart-line text-2xl text-green-400"></i>
-                </div>
-            </div>
-
-            <div class="glass rounded-2xl p-6 border-red-500/30">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-gray-400 text-sm">Vencidas</p>
-                        <h3 id="tareasVencidas" class="text-3xl font-bold mt-2 text-red-400">-</h3>
-                    </div>
-                    <i class="fas fa-exclamation-triangle text-2xl text-red-400"></i>
-                </div>
+                <p class="text-gray-400 text-sm">Proyectos Activos</p>
+                <h3 id="totalProyectos" class="text-3xl font-bold mt-2">-</h3>
             </div>
         </div>
 
-        <!-- Projects Section -->
-        <div id="proyectosSection" class="hidden glass rounded-2xl p-6 mb-6">
-            <h2 class="text-xl font-bold mb-4"><i class="fas fa-project-diagram mr-2 text-blue-400"></i>Proyectos Activos</h2>
-            <div id="listaProyectos" class="space-y-4">
-                <!-- Proyectos se cargan aquí dinámicamente -->
-            </div>
+        <!-- Proyectos -->
+        <div id="proyectosSection" class="hidden glass rounded-2xl p-6">
+            <h2 class="text-xl font-bold mb-4"><i class="fas fa-project-diagram mr-2 text-blue-400"></i>Proyectos</h2>
+            <div id="listaProyectos" class="space-y-4"></div>
         </div>
 
-        <!-- Configuración -->
+        <!-- Config -->
         <div class="glass rounded-2xl p-6 mt-8">
             <h3 class="font-bold mb-4"><i class="fas fa-cog mr-2"></i>Configuración</h3>
+            
             <div class="space-y-4">
                 <div>
-                    <label class="block text-sm text-gray-400 mb-2">Notion Integration Token:</label>
-                    <input type="password" id="notionToken" placeholder="secret_xxxxxxxxxx" 
-                           class="w-full px-4 py-2 bg-gray-800 rounded-lg border border-gray-700 focus:border-blue-500 outline-none">
-                    <p class="text-xs text-gray-500 mt-1">Nunca compartas este token públicamente</p>
+                    <label class="block text-sm text-gray-400 mb-2">Webhook URL de Make.com:</label>
+                    <input type="text" id="webhookUrl" placeholder="https://hook.make.com/..." 
+                           class="w-full px-4 py-2 bg-gray-800 rounded-lg border border-gray-700">
                 </div>
+                
                 <div>
-                    <label class="block text-sm text-gray-400 mb-2">Database ID de Proyectos:</label>
-                    <input type="text" id="databaseId" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" 
-                           class="w-full px-4 py-2 bg-gray-800 rounded-lg border border-gray-700 focus:border-blue-500 outline-none">
+                    <label class="block text-sm text-gray-400 mb-2">Método de conexión:</label>
+                    <select id="metodo" class="w-full px-4 py-2 bg-gray-800 rounded-lg border border-gray-700">
+                        <option value="fetch">Fetch normal (puede fallar por CORS)</option>
+                        <option value="jsonp">JSONP (evita CORS)</option>
+                        <option value="proxy">Proxy CORS (alternativa)</option>
+                    </select>
                 </div>
-                <button onclick="guardarConfig()" class="px-6 py-2 bg-green-600 rounded-lg hover:bg-green-700 transition">
-                    <i class="fas fa-save mr-2"></i>Guardar y Conectar
+                
+                <button onclick="guardarConfig()" class="px-6 py-2 bg-green-600 rounded-lg hover:bg-green-700">
+                    Guardar y Probar
                 </button>
             </div>
         </div>
     </div>
 
     <script>
-        // CONFIGURACIÓN
         let config = {
-            token: localStorage.getItem('notionToken') || '',
-            databaseId: localStorage.getItem('databaseId') || ''
+            webhookUrl: localStorage.getItem('makeWebhook') || '',
+            metodo: localStorage.getItem('metodo') || 'fetch'
         };
-
-        // Cargar configuración guardada
-        document.getElementById('notionToken').value = config.token;
-        document.getElementById('databaseId').value = config.databaseId;
+        
+        document.getElementById('webhookUrl').value = config.webhookUrl;
+        document.getElementById('metodo').value = config.metodo;
 
         function guardarConfig() {
-            config.token = document.getElementById('notionToken').value;
-            config.databaseId = document.getElementById('databaseId').value;
+            config.webhookUrl = document.getElementById('webhookUrl').value;
+            config.metodo = document.getElementById('metodo').value;
             
-            localStorage.setItem('notionToken', config.token);
-            localStorage.setItem('databaseId', config.databaseId);
+            localStorage.setItem('makeWebhook', config.webhookUrl);
+            localStorage.setItem('metodo', config.metodo);
             
-            alert('✅ Configuración guardada. Ahora haz clic en "Actualizar" para cargar los datos.');
             cargarDatos();
         }
 
         async function cargarDatos() {
-            if (!config.token || !config.databaseId) {
-                alert('⚠️ Primero configura tu token y database ID');
-                document.getElementById('loading').classList.add('hidden');
+            if (!config.webhookUrl) {
+                alert('Configura la URL primero');
                 return;
             }
 
@@ -159,111 +120,112 @@
             document.getElementById('error').classList.add('hidden');
 
             try {
-                // Consultar proyectos desde Notion
-                const response = await fetch(`https://api.notion.com/v1/databases/${config.databaseId}/query`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${config.token}`,
-                        'Notion-Version': '2022-06-28',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({})
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Error al conectar con Notion');
-                }
-
-                const data = await response.json();
-                const proyectos = data.results;
-
-                // Actualizar estadísticas
-                document.getElementById('totalProyectos').textContent = proyectos.length;
+                let proyectos = [];
                 
-                // Calcular tareas (esto es simplificado, necesitarías otra consulta)
-                document.getElementById('totalTareas').textContent = proyectos.length * 4; // Estimado
-                
-                // Mostrar proyectos
-                const container = document.getElementById('listaProyectos');
-                container.innerHTML = '';
-
-                if (proyectos.length === 0) {
-                    container.innerHTML = '<p class="text-gray-400 text-center py-4">No hay proyectos en la base de datos</p>';
-                } else {
-                    proyectos.forEach(proyecto => {
-                        const props = proyecto.properties;
-                        const nombre = props['Nombre del Proyecto']?.title?.[0]?.text?.content || 
-                                      props['Project Name']?.title?.[0]?.text?.content || 
-                                      'Sin nombre';
+                if (config.metodo === 'jsonp') {
+                    // Método JSONP
+                    await new Promise((resolve, reject) => {
+                        const script = document.createElement('script');
+                        const callbackName = 'cb_' + Date.now();
                         
-                        const estado = props['Estado']?.select?.name || 
-                                      props['Status']?.select?.name || 
-                                      'Sin estado';
-                                      
-                        const progreso = props['Progreso']?.number || 
-                                        props['Progress']?.number || 
-                                        0;
+                        window[callbackName] = function(data) {
+                            proyectos = data;
+                            delete window[callbackName];
+                            document.body.removeChild(script);
+                            resolve();
+                        };
                         
-                        // Determinar color según estado
-                        let colorClass = 'bg-blue-500';
-                        let estadoClass = 'text-blue-400';
-                        if (estado.includes('Progreso') || estado.includes('Progress')) { 
-                            colorClass = 'bg-blue-500'; estadoClass = 'text-blue-400'; 
-                        }
-                        else if (estado.includes('Revisión') || estado.includes('Review')) { 
-                            colorClass = 'bg-yellow-500'; estadoClass = 'text-yellow-400'; 
-                        }
-                        else if (estado.includes('Completado') || estado.includes('Completed')) { 
-                            colorClass = 'bg-green-500'; estadoClass = 'text-green-400'; 
-                        }
-                        else if (estado.includes('Pausado') || estado.includes('On Hold')) { 
-                            colorClass = 'bg-red-500'; estadoClass = 'text-red-400'; 
-                        }
-
-                        const div = document.createElement('div');
-                        div.className = 'glass rounded-xl p-4 flex items-center justify-between hover:bg-white/5 transition';
-                        div.innerHTML = `
-                            <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 rounded-xl ${colorClass} flex items-center justify-center font-bold text-white">
-                                    ${nombre.substring(0, 2).toUpperCase()}
-                                </div>
-                                <div>
-                                    <h3 class="font-semibold">${nombre}</h3>
-                                    <p class="text-sm ${estadoClass}">${estado}</p>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-4">
-                                <div class="w-32 h-2 bg-gray-700 rounded-full overflow-hidden">
-                                    <div class="h-full ${colorClass} rounded-full" style="width: ${progreso}%"></div>
-                                </div>
-                                <span class="text-sm ${estadoClass}">${progreso}%</span>
-                            </div>
-                        `;
-                        container.appendChild(div);
+                        script.onerror = reject;
+                        script.src = config.webhookUrl + '?callback=' + callbackName;
+                        document.body.appendChild(script);
+                        
+                        setTimeout(() => reject(new Error('Timeout')), 10000);
                     });
+                    
+                } else if (config.metodo === 'proxy') {
+                    // Método Proxy
+                    const proxyUrl = 'https://api.allorigins.win/get?url=';
+                    const response = await fetch(proxyUrl + encodeURIComponent(config.webhookUrl), {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'getProjects' })
+                    });
+                    
+                    const data = await response.json();
+                    proyectos = JSON.parse(data.contents);
+                    
+                } else {
+                    // Método Fetch normal
+                    const response = await fetch(config.webhookUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'getProjects' })
+                    });
+                    
+                    proyectos = await response.json();
                 }
 
-                // Mostrar secciones
-                document.getElementById('loading').classList.add('hidden');
-                document.getElementById('stats').classList.remove('hidden');
-                document.getElementById('stats').classList.add('grid');
-                document.getElementById('proyectosSection').classList.remove('hidden');
+                mostrarProyectos(proyectos);
 
             } catch (error) {
                 document.getElementById('loading').classList.add('hidden');
                 document.getElementById('error').classList.remove('hidden');
                 document.getElementById('errorText').textContent = error.message;
-                console.error('Error completo:', error);
+                
+                // Sugerir cambiar método
+                if (config.metodo === 'fetch') {
+                    document.getElementById('metodo').value = 'jsonp';
+                    alert('Error de CORS detectado. Cambia el método a "JSONP" y guarda de nuevo.');
+                }
             }
         }
 
-        // Cargar automáticamente si hay configuración
-        if (config.token && config.databaseId) {
-            cargarDatos();
-        } else {
+        function mostrarProyectos(proyectos) {
             document.getElementById('loading').classList.add('hidden');
+            document.getElementById('stats').classList.remove('hidden');
+            document.getElementById('stats').classList.add('grid');
+            document.getElementById('proyectosSection').classList.remove('hidden');
+            
+            document.getElementById('totalProyectos').textContent = proyectos.length || 0;
+            
+            const container = document.getElementById('listaProyectos');
+            container.innerHTML = '';
+
+            if (!proyectos || proyectos.length === 0) {
+                container.innerHTML = '<p class="text-gray-400 text-center py-4">No hay proyectos</p>';
+                return;
+            }
+
+            proyectos.forEach(p => {
+                const color = p.estado?.includes('Progreso') ? 'blue' : 
+                             p.estado?.includes('Revisión') ? 'yellow' : 
+                             p.estado?.includes('Completado') ? 'green' : 'red';
+                
+                const div = document.createElement('div');
+                div.className = 'glass rounded-xl p-4 flex items-center justify-between hover:bg-white/5 transition';
+                div.innerHTML = `
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-${color}-500 flex items-center justify-center font-bold text-white">
+                            ${p.nombre?.substring(0,2).toUpperCase() || 'PR'}
+                        </div>
+                        <div>
+                            <h3 class="font-semibold">${p.nombre || 'Sin nombre'}</h3>
+                            <p class="text-${color}-400">${p.estado || 'Sin estado'}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="w-32 h-2 bg-gray-700 rounded-full overflow-hidden">
+                            <div class="h-full bg-${color}-500 rounded-full" style="width: ${p.progreso || 0}%"></div>
+                        </div>
+                        <span class="text-${color}-400 font-bold">${p.progreso || 0}%</span>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
         }
+
+        // Cargar automáticamente si hay config
+        if (config.webhookUrl) cargarDatos();
     </script>
 </body>
 </html>
