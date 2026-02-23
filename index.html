@@ -143,11 +143,13 @@
             localStorage.setItem('databaseId', config.databaseId);
             
             alert('✅ Configuración guardada. Ahora haz clic en "Actualizar" para cargar los datos.');
+            cargarDatos();
         }
 
         async function cargarDatos() {
             if (!config.token || !config.databaseId) {
                 alert('⚠️ Primero configura tu token y database ID');
+                document.getElementById('loading').classList.add('hidden');
                 return;
             }
 
@@ -165,17 +167,13 @@
                         'Notion-Version': '2022-06-28',
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({
-                        filter: {
-                            property: "Estado",
-                            select: {
-                                does_not_equal: "🟢 Completado"
-                            }
-                        }
-                    })
+                    body: JSON.stringify({})
                 });
 
-                if (!response.ok) throw new Error('Error al conectar con Notion');
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Error al conectar con Notion');
+                }
 
                 const data = await response.json();
                 const proyectos = data.results;
@@ -190,41 +188,61 @@
                 const container = document.getElementById('listaProyectos');
                 container.innerHTML = '';
 
-                proyectos.forEach(proyecto => {
-                    const props = proyecto.properties;
-                    const nombre = props['Nombre del Proyecto']?.title[0]?.text?.content || 'Sin nombre';
-                    const estado = props['Estado']?.select?.name || 'Sin estado';
-                    const progreso = props['Progreso']?.number || 0;
-                    
-                    // Determinar color según estado
-                    let colorClass = 'bg-blue-500';
-                    let estadoClass = 'text-blue-400';
-                    if (estado.includes('En Progreso')) { colorClass = 'bg-blue-500'; estadoClass = 'text-blue-400'; }
-                    else if (estado.includes('Revisión')) { colorClass = 'bg-yellow-500'; estadoClass = 'text-yellow-400'; }
-                    else if (estado.includes('Completado')) { colorClass = 'bg-green-500'; estadoClass = 'text-green-400'; }
-                    else if (estado.includes('Pausado')) { colorClass = 'bg-red-500'; estadoClass = 'text-red-400'; }
+                if (proyectos.length === 0) {
+                    container.innerHTML = '<p class="text-gray-400 text-center py-4">No hay proyectos en la base de datos</p>';
+                } else {
+                    proyectos.forEach(proyecto => {
+                        const props = proyecto.properties;
+                        const nombre = props['Nombre del Proyecto']?.title?.[0]?.text?.content || 
+                                      props['Project Name']?.title?.[0]?.text?.content || 
+                                      'Sin nombre';
+                        
+                        const estado = props['Estado']?.select?.name || 
+                                      props['Status']?.select?.name || 
+                                      'Sin estado';
+                                      
+                        const progreso = props['Progreso']?.number || 
+                                        props['Progress']?.number || 
+                                        0;
+                        
+                        // Determinar color según estado
+                        let colorClass = 'bg-blue-500';
+                        let estadoClass = 'text-blue-400';
+                        if (estado.includes('Progreso') || estado.includes('Progress')) { 
+                            colorClass = 'bg-blue-500'; estadoClass = 'text-blue-400'; 
+                        }
+                        else if (estado.includes('Revisión') || estado.includes('Review')) { 
+                            colorClass = 'bg-yellow-500'; estadoClass = 'text-yellow-400'; 
+                        }
+                        else if (estado.includes('Completado') || estado.includes('Completed')) { 
+                            colorClass = 'bg-green-500'; estadoClass = 'text-green-400'; 
+                        }
+                        else if (estado.includes('Pausado') || estado.includes('On Hold')) { 
+                            colorClass = 'bg-red-500'; estadoClass = 'text-red-400'; 
+                        }
 
-                    const div = document.createElement('div');
-                    div.className = 'glass rounded-xl p-4 flex items-center justify-between hover:bg-white/5 transition';
-                    div.innerHTML = `
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 rounded-xl ${colorClass} flex items-center justify-center font-bold text-white">
-                                ${nombre.substring(0, 2).toUpperCase()}
+                        const div = document.createElement('div');
+                        div.className = 'glass rounded-xl p-4 flex items-center justify-between hover:bg-white/5 transition';
+                        div.innerHTML = `
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-xl ${colorClass} flex items-center justify-center font-bold text-white">
+                                    ${nombre.substring(0, 2).toUpperCase()}
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold">${nombre}</h3>
+                                    <p class="text-sm ${estadoClass}">${estado}</p>
+                                </div>
                             </div>
-                            <div>
-                                <h3 class="font-semibold">${nombre}</h3>
-                                <p class="text-sm ${estadoClass}">${estado}</p>
+                            <div class="flex items-center gap-4">
+                                <div class="w-32 h-2 bg-gray-700 rounded-full overflow-hidden">
+                                    <div class="h-full ${colorClass} rounded-full" style="width: ${progreso}%"></div>
+                                </div>
+                                <span class="text-sm ${estadoClass}">${progreso}%</span>
                             </div>
-                        </div>
-                        <div class="flex items-center gap-4">
-                            <div class="w-32 h-2 bg-gray-700 rounded-full overflow-hidden">
-                                <div class="h-full ${colorClass} rounded-full" style="width: ${progreso}%"></div>
-                            </div>
-                            <span class="text-sm ${estadoClass}">${progreso}%</span>
-                        </div>
-                    `;
-                    container.appendChild(div);
-                });
+                        `;
+                        container.appendChild(div);
+                    });
+                }
 
                 // Mostrar secciones
                 document.getElementById('loading').classList.add('hidden');
@@ -236,7 +254,7 @@
                 document.getElementById('loading').classList.add('hidden');
                 document.getElementById('error').classList.remove('hidden');
                 document.getElementById('errorText').textContent = error.message;
-                console.error('Error:', error);
+                console.error('Error completo:', error);
             }
         }
 
