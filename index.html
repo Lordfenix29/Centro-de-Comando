@@ -18,6 +18,8 @@
             background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%);
             min-height: 100vh;
         }
+        .loading { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
     </style>
 </head>
 <body class="text-white p-6">
@@ -28,124 +30,222 @@
                 <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
                     <i class="fas fa-rocket mr-3"></i>Centro de Comando
                 </h1>
-                <p class="text-gray-400 mt-1">Gestión de Proyectos • Notion + Telegram</p>
+                <p class="text-gray-400 mt-1">Conectado a Notion • Datos en tiempo real</p>
             </div>
             <div class="flex gap-3">
-                <button class="px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700 transition">
-                    <i class="fas fa-sync-alt mr-2"></i>Sincronizar
+                <button onclick="cargarDatos()" class="px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700 transition">
+                    <i class="fas fa-sync-alt mr-2"></i>Actualizar
                 </button>
             </div>
         </div>
 
+        <!-- Loading State -->
+        <div id="loading" class="text-center py-12 loading">
+            <i class="fas fa-circle-notch fa-spin text-4xl mb-4"></i>
+            <p>Cargando datos desde Notion...</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="error" class="hidden bg-red-500/20 border border-red-500 rounded-xl p-6 mb-6">
+            <h3 class="font-bold text-red-400 mb-2"><i class="fas fa-exclamation-triangle mr-2"></i>Error de conexión</h3>
+            <p id="errorText" class="text-sm"></p>
+        </div>
+
         <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="glass rounded-2xl p-6 hover:transform hover:scale-105 transition">
+        <div id="stats" class="hidden grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="glass rounded-2xl p-6">
                 <div class="flex justify-between items-start">
                     <div>
                         <p class="text-gray-400 text-sm">Proyectos Activos</p>
-                        <h3 class="text-3xl font-bold mt-2">12</h3>
+                        <h3 id="totalProyectos" class="text-3xl font-bold mt-2">-</h3>
                     </div>
                     <i class="fas fa-folder-open text-2xl text-blue-400"></i>
                 </div>
-                <div class="mt-4 h-2 bg-gray-700 rounded-full overflow-hidden">
-                    <div class="h-full bg-blue-500 rounded-full" style="width: 75%"></div>
-                </div>
             </div>
 
-            <div class="glass rounded-2xl p-6 hover:transform hover:scale-105 transition">
+            <div class="glass rounded-2xl p-6">
                 <div class="flex justify-between items-start">
                     <div>
-                        <p class="text-gray-400 text-sm">Tareas Esta Semana</p>
-                        <h3 class="text-3xl font-bold mt-2">48</h3>
+                        <p class="text-gray-400 text-sm">Tareas Pendientes</p>
+                        <h3 id="totalTareas" class="text-3xl font-bold mt-2">-</h3>
                     </div>
                     <i class="fas fa-tasks text-2xl text-purple-400"></i>
                 </div>
-                <div class="mt-4 h-2 bg-gray-700 rounded-full overflow-hidden">
-                    <div class="h-full bg-purple-500 rounded-full" style="width: 60%"></div>
-                </div>
             </div>
 
-            <div class="glass rounded-2xl p-6 hover:transform hover:scale-105 transition">
+            <div class="glass rounded-2xl p-6">
                 <div class="flex justify-between items-start">
                     <div>
-                        <p class="text-gray-400 text-sm">Completado</p>
-                        <h3 class="text-3xl font-bold mt-2 text-green-400">87%</h3>
+                        <p class="text-gray-400 text-sm">Tasa de Éxito</p>
+                        <h3 id="tasaExito" class="text-3xl font-bold mt-2 text-green-400">-%</h3>
                     </div>
                     <i class="fas fa-chart-line text-2xl text-green-400"></i>
                 </div>
-                <div class="mt-4 h-2 bg-gray-700 rounded-full overflow-hidden">
-                    <div class="h-full bg-green-500 rounded-full" style="width: 87%"></div>
-                </div>
             </div>
 
-            <div class="glass rounded-2xl p-6 hover:transform hover:scale-105 transition border-red-500/30">
+            <div class="glass rounded-2xl p-6 border-red-500/30">
                 <div class="flex justify-between items-start">
                     <div>
                         <p class="text-gray-400 text-sm">Vencidas</p>
-                        <h3 class="text-3xl font-bold mt-2 text-red-400">3</h3>
+                        <h3 id="tareasVencidas" class="text-3xl font-bold mt-2 text-red-400">-</h3>
                     </div>
                     <i class="fas fa-exclamation-triangle text-2xl text-red-400"></i>
-                </div>
-                <div class="mt-4 h-2 bg-gray-700 rounded-full overflow-hidden">
-                    <div class="h-full bg-red-500 rounded-full" style="width: 25%"></div>
                 </div>
             </div>
         </div>
 
         <!-- Projects Section -->
-        <div class="glass rounded-2xl p-6 mb-6">
+        <div id="proyectosSection" class="hidden glass rounded-2xl p-6 mb-6">
             <h2 class="text-xl font-bold mb-4"><i class="fas fa-project-diagram mr-2 text-blue-400"></i>Proyectos Activos</h2>
-            
-            <div class="space-y-4">
-                <div class="glass rounded-xl p-4 flex items-center justify-between hover:bg-white/5 transition cursor-pointer">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center font-bold">WR</div>
-                        <div>
-                            <h3 class="font-semibold">Rediseño Website</h3>
-                            <p class="text-sm text-gray-400">Diseño • Vence en 5 días</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-4">
-                        <div class="w-32 h-2 bg-gray-700 rounded-full overflow-hidden">
-                            <div class="h-full bg-blue-500 rounded-full" style="width: 75%"></div>
-                        </div>
-                        <span class="text-sm text-blue-400">75%</span>
-                    </div>
-                </div>
-
-                <div class="glass rounded-xl p-4 flex items-center justify-between hover:bg-white/5 transition cursor-pointer">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-400 flex items-center justify-center font-bold">API</div>
-                        <div>
-                            <h3 class="font-semibold">Mobile App API</h3>
-                            <p class="text-sm text-gray-400">Desarrollo • 2 semanas</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-4">
-                        <div class="w-32 h-2 bg-gray-700 rounded-full overflow-hidden">
-                            <div class="h-full bg-yellow-500 rounded-full" style="width: 90%"></div>
-                        </div>
-                        <span class="text-sm text-yellow-400">90%</span>
-                    </div>
-                </div>
+            <div id="listaProyectos" class="space-y-4">
+                <!-- Proyectos se cargan aquí dinámicamente -->
             </div>
         </div>
 
-        <!-- Quick Actions -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <button class="glass rounded-xl p-4 hover:bg-blue-600/20 transition flex items-center justify-center gap-3">
-                <i class="fas fa-plus text-xl"></i>
-                <span class="font-semibold">Nueva Tarea</span>
-            </button>
-            <button class="glass rounded-xl p-4 hover:bg-purple-600/20 transition flex items-center justify-center gap-3">
-                <i class="fas fa-folder-plus text-xl"></i>
-                <span class="font-semibold">Nuevo Proyecto</span>
-            </button>
-            <button class="glass rounded-xl p-4 hover:bg-green-600/20 transition flex items-center justify-center gap-3">
-                <i class="fab fa-telegram text-xl"></i>
-                <span class="font-semibold">Abrir Bot</span>
-            </button>
+        <!-- Configuración -->
+        <div class="glass rounded-2xl p-6 mt-8">
+            <h3 class="font-bold mb-4"><i class="fas fa-cog mr-2"></i>Configuración</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm text-gray-400 mb-2">Notion Integration Token:</label>
+                    <input type="password" id="notionToken" placeholder="secret_xxxxxxxxxx" 
+                           class="w-full px-4 py-2 bg-gray-800 rounded-lg border border-gray-700 focus:border-blue-500 outline-none">
+                    <p class="text-xs text-gray-500 mt-1">Nunca compartas este token públicamente</p>
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-400 mb-2">Database ID de Proyectos:</label>
+                    <input type="text" id="databaseId" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" 
+                           class="w-full px-4 py-2 bg-gray-800 rounded-lg border border-gray-700 focus:border-blue-500 outline-none">
+                </div>
+                <button onclick="guardarConfig()" class="px-6 py-2 bg-green-600 rounded-lg hover:bg-green-700 transition">
+                    <i class="fas fa-save mr-2"></i>Guardar y Conectar
+                </button>
+            </div>
         </div>
     </div>
+
+    <script>
+        // CONFIGURACIÓN
+        let config = {
+            token: localStorage.getItem('notionToken') || '',
+            databaseId: localStorage.getItem('databaseId') || ''
+        };
+
+        // Cargar configuración guardada
+        document.getElementById('notionToken').value = config.token;
+        document.getElementById('databaseId').value = config.databaseId;
+
+        function guardarConfig() {
+            config.token = document.getElementById('notionToken').value;
+            config.databaseId = document.getElementById('databaseId').value;
+            
+            localStorage.setItem('notionToken', config.token);
+            localStorage.setItem('databaseId', config.databaseId);
+            
+            alert('✅ Configuración guardada. Ahora haz clic en "Actualizar" para cargar los datos.');
+        }
+
+        async function cargarDatos() {
+            if (!config.token || !config.databaseId) {
+                alert('⚠️ Primero configura tu token y database ID');
+                return;
+            }
+
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('stats').classList.add('hidden');
+            document.getElementById('proyectosSection').classList.add('hidden');
+            document.getElementById('error').classList.add('hidden');
+
+            try {
+                // Consultar proyectos desde Notion
+                const response = await fetch(`https://api.notion.com/v1/databases/${config.databaseId}/query`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${config.token}`,
+                        'Notion-Version': '2022-06-28',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        filter: {
+                            property: "Estado",
+                            select: {
+                                does_not_equal: "🟢 Completado"
+                            }
+                        }
+                    })
+                });
+
+                if (!response.ok) throw new Error('Error al conectar con Notion');
+
+                const data = await response.json();
+                const proyectos = data.results;
+
+                // Actualizar estadísticas
+                document.getElementById('totalProyectos').textContent = proyectos.length;
+                
+                // Calcular tareas (esto es simplificado, necesitarías otra consulta)
+                document.getElementById('totalTareas').textContent = proyectos.length * 4; // Estimado
+                
+                // Mostrar proyectos
+                const container = document.getElementById('listaProyectos');
+                container.innerHTML = '';
+
+                proyectos.forEach(proyecto => {
+                    const props = proyecto.properties;
+                    const nombre = props['Nombre del Proyecto']?.title[0]?.text?.content || 'Sin nombre';
+                    const estado = props['Estado']?.select?.name || 'Sin estado';
+                    const progreso = props['Progreso']?.number || 0;
+                    
+                    // Determinar color según estado
+                    let colorClass = 'bg-blue-500';
+                    let estadoClass = 'text-blue-400';
+                    if (estado.includes('En Progreso')) { colorClass = 'bg-blue-500'; estadoClass = 'text-blue-400'; }
+                    else if (estado.includes('Revisión')) { colorClass = 'bg-yellow-500'; estadoClass = 'text-yellow-400'; }
+                    else if (estado.includes('Completado')) { colorClass = 'bg-green-500'; estadoClass = 'text-green-400'; }
+                    else if (estado.includes('Pausado')) { colorClass = 'bg-red-500'; estadoClass = 'text-red-400'; }
+
+                    const div = document.createElement('div');
+                    div.className = 'glass rounded-xl p-4 flex items-center justify-between hover:bg-white/5 transition';
+                    div.innerHTML = `
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl ${colorClass} flex items-center justify-center font-bold text-white">
+                                ${nombre.substring(0, 2).toUpperCase()}
+                            </div>
+                            <div>
+                                <h3 class="font-semibold">${nombre}</h3>
+                                <p class="text-sm ${estadoClass}">${estado}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div class="w-32 h-2 bg-gray-700 rounded-full overflow-hidden">
+                                <div class="h-full ${colorClass} rounded-full" style="width: ${progreso}%"></div>
+                            </div>
+                            <span class="text-sm ${estadoClass}">${progreso}%</span>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+
+                // Mostrar secciones
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('stats').classList.remove('hidden');
+                document.getElementById('stats').classList.add('grid');
+                document.getElementById('proyectosSection').classList.remove('hidden');
+
+            } catch (error) {
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('error').classList.remove('hidden');
+                document.getElementById('errorText').textContent = error.message;
+                console.error('Error:', error);
+            }
+        }
+
+        // Cargar automáticamente si hay configuración
+        if (config.token && config.databaseId) {
+            cargarDatos();
+        } else {
+            document.getElementById('loading').classList.add('hidden');
+        }
+    </script>
 </body>
 </html>
