@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Centro de Comando - Proyectos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        * { font-family: 'Inter', sans-serif; }
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        body {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%);
+            min-height: 100vh;
+        }
+    </style>
+</head>
+<body class="text-white p-6">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                    <i class="fas fa-rocket mr-3"></i>Centro de Comando
+                </h1>
+                <p class="text-gray-400 mt-1">Gestión de Proyectos • Notion + Telegram</p>
+            </div>
+            <div class="flex gap-3">
+                <button class="px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700 transition">
+                    <i class="fas fa-sync-alt mr-2"></i>Sincronizar
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="glass rounded-2xl p-6 hover:transform hover:scale-105 transition">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-400 text-sm">Proyectos Activos</p>
+                        <h3 class="text-3xl font-bold mt-2">12</h3>
+                    </div>
+                    <i class="fas fa-folder-open text-2xl text-blue-400"></i>
+                </div>
+                <div class="mt-4 h-2 bg-gray-700 rounded-full overflow-hidden">
+                    <div class="h-full bg-blue-500 rounded-full" style="width: 75%"></div>
+                </div>
+            </div>
+
+            <div class="glass rounded-2xl p-6 hover:transform hover:scale-105 transition">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-400 text-sm">Tareas Esta Semana</p>
+                        <h3 class="text-3xl font-bold mt-2">48</h3>
+                    </div>
+                    <i class="fas fa-tasks text-2xl text-purple-400"></i>
+                </div>
+                <div class="mt-4 h-2 bg-gray-700 rounded-full overflow-hidden">
+                    <div class="h-full bg-purple-500 rounded-full" style="width: 60%"></div>
+                </div>
+            </div>
+
+            <div class="glass rounded-2xl p-6 hover:transform hover:scale-105 transition">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-400 text-sm">Completado</p>
+                        <h3 class="text-3xl font-bold mt-2 text-green-400">87%</h3>
+                    </div>
+                    <i class="fas fa-chart-line text-2xl text-green-400"></i>
+                </div>
+                <div class="mt-4 h-2 bg-gray-700 rounded-full overflow-hidden">
+                    <div class="h-full bg-green-500 rounded-full" style="width: 87%"></div>
+                </div>
+            </div>
+
+            <div class="glass rounded-2xl p-6 hover:transform hover:scale-105 transition border-red-500/30">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-400 text-sm">Vencidas</p>
+                        <h3 class="text-3xl font-bold mt-2 text-red-400">3</h3>
+                    </div>
+                    <i class="fas fa-exclamation-triangle text-2xl text-red-400"></i>
+                </div>
+                <div class="mt-4 h-2 bg-gray-700 rounded-full overflow-hidden">
+                    <div class="h-full bg-red-500 rounded-full" style="width: 25%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Projects Section -->
+        <div class="glass rounded-2xl p-6 mb-6">
+            <h2 class="text-xl font-bold mb-4"><i class="fas fa-project-diagram mr-2 text-blue-400"></i>Proyectos Activos</h2>
+            
+            <div class="space-y-4">
+                <div class="glass rounded-xl p-4 flex items-center justify-between hover:bg-white/5 transition cursor-pointer">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center font-bold">WR</div>
+                        <div>
+                            <h3 class="font-semibold">Rediseño Website</h3>
+                            <p class="text-sm text-gray-400">Diseño • Vence en 5 días</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="w-32 h-2 bg-gray-700 rounded-full overflow-hidden">
+                            <div class="h-full bg-blue-500 rounded-full" style="width: 75%"></div>
+                        </div>
+                        <span class="text-sm text-blue-400">75%</span>
+                    </div>
+                </div>
+
+                <div class="glass rounded-xl p-4 flex items-center justify-between hover:bg-white/5 transition cursor-pointer">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-400 flex items-center justify-center font-bold">API</div>
+                        <div>
+                            <h3 class="font-semibold">Mobile App API</h3>
+                            <p class="text-sm text-gray-400">Desarrollo • 2 semanas</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="w-32 h-2 bg-gray-700 rounded-full overflow-hidden">
+                            <div class="h-full bg-yellow-500 rounded-full" style="width: 90%"></div>
+                        </div>
+                        <span class="text-sm text-yellow-400">90%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <button class="glass rounded-xl p-4 hover:bg-blue-600/20 transition flex items-center justify-center gap-3">
+                <i class="fas fa-plus text-xl"></i>
+                <span class="font-semibold">Nueva Tarea</span>
+            </button>
+            <button class="glass rounded-xl p-4 hover:bg-purple-600/20 transition flex items-center justify-center gap-3">
+                <i class="fas fa-folder-plus text-xl"></i>
+                <span class="font-semibold">Nuevo Proyecto</span>
+            </button>
+            <button class="glass rounded-xl p-4 hover:bg-green-600/20 transition flex items-center justify-center gap-3">
+                <i class="fab fa-telegram text-xl"></i>
+                <span class="font-semibold">Abrir Bot</span>
+            </button>
+        </div>
+    </div>
+</body>
+</html>
